@@ -17,6 +17,7 @@ export const todoSchema = yup.object().shape({
     .string()
     .trim()
     .matches(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)')
+    .nullable()
     .optional()
 });
 

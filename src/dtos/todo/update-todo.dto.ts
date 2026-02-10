@@ -1,6 +1,6 @@
-export interface UpdateToDoDTO {
-    title: string;
+export interface UpdateTodoDTO {
+    title?: string;
     description?: string;
-    completed: boolean;
-    dueDate?: string;
+    completed?: boolean;
+    dueDate?: string | null;
 }

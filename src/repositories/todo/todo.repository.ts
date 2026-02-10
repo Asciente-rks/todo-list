@@ -1,34 +1,45 @@
-import { ToDo } from '../../models/todo/todo.model'
+import { Todo, TodoCreationAttributes } from '../../models/todo/todo.sequelize';
+import { CreateTodoDTO } from '../../dtos/todo/create-todo.dto';
+import { UpdateTodoDTO } from '../../dtos/todo/update-todo.dto';
 
-export class ToDoRepository {
-    private todoList: ToDo [] = [];
+export class TodoRepository {
+  async findAll() {
+    return await Todo.findAll();
+  }
 
-    findAll(): ToDo[] {
-        return this.todoList;
+  async findById(id: string) {
+    return await Todo.findByPk(id);
+  }
+
+  async create(data: CreateTodoDTO) {
+    const todoData: TodoCreationAttributes = {
+      title: data.title,
+      description: data.description,
+      completed: data.completed ?? false,
+      dueDate: data.dueDate,
+      userId: data.userId,
+    };
+
+    return await Todo.create(todoData);
+  }
+
+  async update(id: string, data: UpdateTodoDTO) {
+    const todo = await Todo.findByPk(id);
+    if (!todo) return null;
+  
+    const updateData: any = { ...data };
+    if (data.dueDate !== undefined) {
+      updateData.dueDate = data.dueDate ? new Date(data.dueDate) : null;
     }
+  
+    return await todo.update(updateData);
+  }
+  
+  async delete(id: string) {
+    const todo = await Todo.findByPk(id);
+    if (!todo) return false;
 
-    findById(id: string): ToDo | null {
-        return this.todoList.find(t => t.id === id) || null;
-    }
-    
-    createToDo(todo: ToDo): ToDo {
-        this.todoList.push(todo);
-        return todo;
-    }
-
-    updateById(id: string, fieldToUpdate: Partial<ToDo>): ToDo | null {
-        const todoToUpdate = this.todoList.find(t => t.id === id);
-        if (!todoToUpdate) return null;
-
-        Object.assign(todoToUpdate, fieldToUpdate);
-        return todoToUpdate;
-    }
-
-    deleteById(id: string): boolean {
-        const index = this.todoList.findIndex(t => t.id === id);
-        if (index === -1) return false;
-
-        this.todoList.splice(index, 1);
-        return true;
-    }
+    await todo.destroy();
+    return true;
+  }
 }

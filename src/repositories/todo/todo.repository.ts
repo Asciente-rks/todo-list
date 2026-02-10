@@ -36,10 +36,7 @@ export class TodoRepository {
   }
   
   async delete(id: string) {
-    const todo = await Todo.findByPk(id);
-    if (!todo) return false;
-
-    await todo.destroy();
-    return true;
+    const deletedRowCount = await Todo.destroy({ where: { id } });
+    return deletedRowCount > 0;
   }
 }

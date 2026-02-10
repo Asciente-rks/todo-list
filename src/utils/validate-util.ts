@@ -23,7 +23,8 @@ export const todoSchema = yup.object().shape({
 
 export const validateTodo = async (data: any) => {
   try {
-    await todoSchema.validate(data, { abortEarly: false });
+    const validatedData = await todoSchema.validate(data, { abortEarly: false, stripUnknown: true });
+    Object.assign(data, validatedData);
     return [];
   } catch (err: any) {
     return err.inner.map((e: any) => ({

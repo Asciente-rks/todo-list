@@ -38,5 +38,6 @@ export const testConnection = async () => {
     console.log(' Connection to User DB established successfully.');
   } catch (error) {
     console.error(' Unable to connect to the database:', error);
+    throw error;
   }
 };

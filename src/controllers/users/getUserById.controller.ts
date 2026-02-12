@@ -8,7 +8,7 @@ const userRepository = new UserRepository();
 const todoRepository = new TodoRepository();
 const userService = new UserService(userRepository);
 
-export const getUser = async (req: Request, res: Response) => {
+export const getUserById = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id as string;
     const authUserId = (req as AuthRequest).user?.id;

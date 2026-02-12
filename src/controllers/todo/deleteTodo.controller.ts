@@ -7,7 +7,8 @@ const todoService = new TodoService(new TodoRepository());
 export const deleteTodo = async (req: Request, res: Response) => {
   try {
     const id: string = req.params.id as string;
-    const deleted = await todoService.deleteTodo(id);
+    const { userId } = req.body;
+    const deleted = await todoService.deleteTodo(id, userId);
 
     if (!deleted) return res.status(404).json({ message: 'Todo not found' });
 

@@ -1,9 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { sequelize, testConnection } from './utils/db';
-import { User } from './models/user/user.sequelize';
-import { Todo } from './models/todo/todo.sequelize';
-import { todoRouter } from './routes/todo.routes';
+import { todoSequelize, userSequelize, testConnection } from './utils/db';
+import { userRouter } from './routes/users/user.routes';
+import { todoRouter } from './routes/todo/todo.routes';
 
 dotenv.config();
 
@@ -13,12 +12,14 @@ const app = express();
 app.use(express.json());
 
 app.use('/todos', todoRouter);
+app.use('/users', userRouter);
 
 const startServer = async () => {
   try {
     await testConnection();
-    await sequelize.sync({ alter: true });
-    console.log('Database synced successfully.');
+    await todoSequelize.sync({ alter: true });
+    await userSequelize.sync({ alter: true });
+    console.log('Databases synced successfully.');
 
     app.listen(PORT, () => {
       console.log(`Server running at http://localhost:${PORT}`);

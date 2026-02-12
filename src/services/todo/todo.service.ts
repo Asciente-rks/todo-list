@@ -1,7 +1,7 @@
 import { TodoRepository } from '../../repositories/todo/todo.repository';
 import { CreateTodoDTO } from '../../dtos/todo/create-todo.dto';
 import { UpdateTodoDTO } from '../../dtos/todo/update-todo.dto';
-import { Todo } from '../../models/todo/todo.sequelize';
+import { Todo, TodoCreationAttributes } from '../../models/todo/todo.sequelize';
 
 export class TodoService {
   constructor(private todoRepository: TodoRepository) {}
@@ -18,20 +18,32 @@ export class TodoService {
     return this.mapToDTO(todo);
   }
 
-  async createTodo(dto: CreateTodoDTO) {
-    const createdTodo = await this.todoRepository.create(dto);
+  async createTodo(userId: string, dto: CreateTodoDTO) {
+    const todoData: TodoCreationAttributes = {
+      title: dto.title,
+      description: dto.description,
+      completed: false,
+      dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
+      userId: userId,
+    };
+    const createdTodo = await this.todoRepository.create(todoData);
     return this.mapToDTO(createdTodo);
   }
 
-  async updateTodo(id: string, dto: UpdateTodoDTO) {
-    const updatedTodo = await this.todoRepository.update(id, dto);
+  async updateTodo(id: string, userId: string, dto: UpdateTodoDTO) {
+    const { dueDate, ...rest } = dto;
+    const updateData: Partial<TodoCreationAttributes> = { ...rest };
+    if (dueDate !== undefined) {
+      updateData.dueDate = dueDate ? new Date(dueDate) : null;
+    }
+    const updatedTodo = await this.todoRepository.update(id, userId, updateData);
     if (!updatedTodo) return null;
 
     return this.mapToDTO(updatedTodo);
   }
 
-  async deleteTodo(id: string) {
-    return await this.todoRepository.delete(id);
+  async deleteTodo(id: string, userId: string) {
+    return await this.todoRepository.delete(id, userId);
   }
 
   private mapToDTO(todo: Todo) {

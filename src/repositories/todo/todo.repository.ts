@@ -1,42 +1,30 @@
 import { Todo, TodoCreationAttributes } from '../../models/todo/todo.sequelize';
-import { CreateTodoDTO } from '../../dtos/todo/create-todo.dto';
-import { UpdateTodoDTO } from '../../dtos/todo/update-todo.dto';
 
 export class TodoRepository {
   async findAll() {
     return await Todo.findAll();
   }
 
+  async findAllByUserId(userId: string) {
+    return await Todo.findAll({ where: { userId } });
+  }
+
   async findById(id: string) {
     return await Todo.findByPk(id);
   }
 
-  async create(data: CreateTodoDTO) {
-    const todoData: TodoCreationAttributes = {
-      title: data.title,
-      description: data.description,
-      completed: data.completed ?? false,
-      dueDate: data.dueDate,
-      userId: data.userId,
-    };
-
-    return await Todo.create(todoData);
+  async create(data: TodoCreationAttributes) {
+    return await Todo.create(data);
   }
 
-  async update(id: string, data: UpdateTodoDTO) {
-    const todo = await Todo.findByPk(id);
+  async update(id: string, userId: string, data: Partial<TodoCreationAttributes>) {
+    const todo = await Todo.findOne({ where: { id, userId } });
     if (!todo) return null;
-  
-    const updateData: any = { ...data };
-    if (data.dueDate !== undefined) {
-      updateData.dueDate = data.dueDate ? new Date(data.dueDate) : null;
-    }
-  
-    return await todo.update(updateData);
+    return await todo.update(data);
   }
   
-  async delete(id: string) {
-    const deletedRowCount = await Todo.destroy({ where: { id } });
+  async delete(id: string, userId: string) {
+    const deletedRowCount = await Todo.destroy({ where: { id, userId } });
     return deletedRowCount > 0;
   }
 }

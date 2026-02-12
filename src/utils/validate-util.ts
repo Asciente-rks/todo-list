@@ -19,11 +19,7 @@ export const todoSchema = yup.object().shape({
     .trim()
     .matches(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)')
     .nullable()
-    .optional(),
-  userId: yup
-    .string()
-    .uuid()
-    .required('User ID is required')
+    .optional()
 });
 
 export const userSchema = yup.object().shape({
@@ -73,12 +69,14 @@ export const updateUserSchema = yup.object().shape({
 export const validate = async (schema: yup.Schema, data: any) => {
   try {
     const validatedData = await schema.validate(data, { abortEarly: false, stripUnknown: true });
-    Object.assign(data, validatedData);
-    return null;
+    return { data: validatedData, errors: null };
   } catch (err: any) {
-    return err.inner.map((e: any) => ({
-      path: e.path,
-      message: e.message,
-    }));
+    return {
+      data: null,
+      errors: err.inner.map((e: any) => ({
+        path: e.path,
+        message: e.message,
+      })),
+    };
   }
 };

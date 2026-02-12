@@ -6,13 +6,13 @@ import { Todo, TodoCreationAttributes } from '../../models/todo/todo.sequelize';
 export class TodoService {
   constructor(private todoRepository: TodoRepository) {}
 
-  async getAllTodos() {
-    const allTodos = await this.todoRepository.findAll();
+  async getAllTodos(userId: string) {
+    const allTodos = await this.todoRepository.findAllByUserId(userId);
     return allTodos.map(todo => this.mapToDTO(todo));
   }
 
-  async getTodoById(id: string) {
-    const todo = await this.todoRepository.findById(id);
+  async getTodoById(id: string, userId: string) {
+    const todo = await this.todoRepository.findByIdAndUserId(id, userId);
     if (!todo) return null;
 
     return this.mapToDTO(todo);

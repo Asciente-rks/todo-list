@@ -13,6 +13,10 @@ export class TodoRepository {
     return await Todo.findByPk(id);
   }
 
+  async findByIdAndUserId(id: string, userId: string) {
+    return await Todo.findOne({ where: { id, userId } });
+  }
+
   async create(data: TodoCreationAttributes) {
     return await Todo.create(data);
   }

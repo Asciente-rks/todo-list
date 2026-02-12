@@ -1,18 +1,20 @@
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { UserRepository } from '../../repositories/users/user.repository';
-import { TodoRepository } from '../../repositories/todo/todo.repository';
 import { CreateUserDTO } from '../../dtos/users/create-user.dto';
 import { LoginDTO } from '../../dtos/users/login.dto';
 import { UpdateUserDTO } from '../../dtos/users/update-user.dto';
 
 export class UserService {
   constructor(
-    private userRepository: UserRepository,
-    private todoRepository?: TodoRepository
+    private userRepository: UserRepository
   ) {}
 
   async register(dto: CreateUserDTO) {
+    if (!dto.email || !dto.username || !dto.password) {
+      throw new Error('Username, email and password are required');
+    }
+
     const existingUser = await this.userRepository.findByEmail(dto.email);
     if (existingUser) {
       throw new Error('User with this email already exists');
@@ -39,7 +41,7 @@ export class UserService {
       throw new Error('Invalid credentials');
     }
 
-    const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET || 'your_secret_key', { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET!, { expiresIn: '1h' });
     return { user, token };
   }
 
@@ -63,16 +65,6 @@ export class UserService {
   }
 
   async findById(id: string) {
-    const user = await this.userRepository.findById(id);
-    if (!user) return null;
-
-    let todos: any[] = [];
-    if (this.todoRepository) {
-      todos = await this.todoRepository.findAllByUserId(id);
-    }
-
-    const userJson = user.toJSON() as any;
-    userJson.todos = todos;
-    return userJson;
+    return await this.userRepository.findById(id);
   }
 }

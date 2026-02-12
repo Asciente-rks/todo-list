@@ -16,7 +16,7 @@ export const todoSequelize = new Sequelize(
 );
 
 export const userSequelize = new Sequelize(
-  process.env.USER_DB_NAME || 'user_db',
+  process.env.USER_DB_NAME!,
   process.env.DB_USER!,
   process.env.DB_PASSWORD!,
   {
@@ -32,7 +32,7 @@ export const testConnection = async () => {
     await todoSequelize.authenticate();
     console.log(' Connection to Todo DB established successfully.');
 
-    await todoSequelize.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.USER_DB_NAME || 'user_db'}\`;`);
+    await todoSequelize.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.USER_DB_NAME}\`;`);
 
     await userSequelize.authenticate();
     console.log(' Connection to User DB established successfully.');

@@ -6,6 +6,7 @@ import { getAllUsers } from '../../controllers/users/getAllUsers.controller';
 import { updateUser } from '../../controllers/users/updateUser.controller';
 import { deleteUser } from '../../controllers/users/deleteUser.controller';
 import { validateUser, validateLogin, validateUpdateUser } from '../../middlewares/validation.middleware';
+
 const userRouter = Router();
 
 userRouter.post('/register',validateUser, register);

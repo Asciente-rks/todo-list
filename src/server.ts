@@ -17,8 +17,8 @@ app.use('/users', userRouter);
 const startServer = async () => {
   try {
     await testConnection();
-    await todoSequelize.sync({ alter: true });
-    await userSequelize.sync({ alter: true });
+    await todoSequelize.sync();
+    await userSequelize.sync();
     console.log('Databases synced successfully.');
 
     app.listen(PORT, () => {

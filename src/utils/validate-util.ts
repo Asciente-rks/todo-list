@@ -22,7 +22,7 @@ export const todoSchema = yup.object().shape({
     .optional()
 });
 
-export const userSchema = yup.object().shape({
+export const registerSchema = yup.object().shape({
   username: yup
     .string()
     .trim()

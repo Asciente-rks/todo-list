@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { todoSchema, userSchema, loginSchema, updateUserSchema, validate } from '../utils/validate-util';
+import { todoSchema, registerSchema, loginSchema, updateUserSchema, validate } from '../utils/validate-util';
 
 export const validateTodo = async (req: Request, res: Response, next: NextFunction) => {
   const { data, errors } = await validate(todoSchema, req.body);
@@ -29,7 +29,7 @@ export const validateUpdateUser = async (req: Request, res: Response, next: Next
 };
 
 export const validateUser = async (req: Request, res: Response, next: NextFunction) => {
-  const { data, errors } = await validate(userSchema, req.body);
+  const { data, errors } = await validate(registerSchema, req.body);
   if (errors) {
     return res.status(400).json({ errors });
   }

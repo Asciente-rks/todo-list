@@ -28,12 +28,20 @@ export const userSequelize = new Sequelize(
 );
 
 export const testConnection = async () => {
+  const bootstrapSequelize = new Sequelize('', process.env.DB_USER!, process.env.DB_PASSWORD!, {
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT) || 3306,
+    dialect: 'mysql',
+    logging: false
+  });
+
   try {
+    await bootstrapSequelize.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;`);
+    await bootstrapSequelize.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.USER_DB_NAME}\`;`);
+    await bootstrapSequelize.close();
+
     await todoSequelize.authenticate();
     console.log(' Connection to Todo DB established successfully.');
-
-    await todoSequelize.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.USER_DB_NAME}\`;`);
-
     await userSequelize.authenticate();
     console.log(' Connection to User DB established successfully.');
   } catch (error) {

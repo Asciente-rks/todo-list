@@ -41,7 +41,11 @@ export class UserService {
       throw new Error('Invalid credentials');
     }
 
-    const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: user.id, username: user.username },
+      process.env.JWT_SECRET!,
+      { expiresIn: '1h' }
+    );
     return { user, token };
   }
 
@@ -57,7 +61,12 @@ export class UserService {
   }
 
   async deleteUser(id: string) {
-    return await this.userRepository.delete(id);
+    const wasDeleted = await this.userRepository.delete(id);
+
+    if (wasDeleted) {
+      console.log(`EVENT_EMITTED: UserDeleted, userId: ${id}`);
+    }
+    return wasDeleted;
   }
 
   async findByEmail(email: string) {

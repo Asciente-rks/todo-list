@@ -32,14 +32,27 @@ Todo.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    title: { type: DataTypes.STRING, allowNull: false },
+    title: { 
+      type: DataTypes.STRING, 
+      allowNull: false 
+    },
     description: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    completed: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
-    dueDate: { type: DataTypes.DATE, allowNull: true },
-    userId: { type: DataTypes.UUID, allowNull: false },
+    completed: {
+      type: DataTypes.BOOLEAN, 
+      allowNull: false, 
+      defaultValue: false 
+    },
+    dueDate: {
+      type: DataTypes.DATE, 
+      allowNull: true 
+    },
+    userId: {
+      type: DataTypes.UUID, 
+      allowNull: false 
+    },
   },
   {
     sequelize: todoSequelize,

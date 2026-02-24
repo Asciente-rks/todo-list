@@ -10,7 +10,7 @@ export const validateTodo = async (req: Request, res: Response, next: NextFuncti
   next();
 };
 
-export const validateLogin = async (req: Request, res: Response, next: NextFunction) => {
+export const validateLoginUser = async (req: Request, res: Response, next: NextFunction) => {
   const { data, errors } = await validate(loginSchema, req.body);
   if (errors) {
     return res.status(400).json({ errors });
@@ -28,7 +28,7 @@ export const validateUpdateUser = async (req: Request, res: Response, next: Next
   next();
 };
 
-export const validateUser = async (req: Request, res: Response, next: NextFunction) => {
+export const validateRegisterUser = async (req: Request, res: Response, next: NextFunction) => {
   const { data, errors } = await validate(registerSchema, req.body);
   if (errors) {
     return res.status(400).json({ errors });

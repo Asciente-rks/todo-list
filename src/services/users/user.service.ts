@@ -6,9 +6,7 @@ import { LoginDTO } from '../../dtos/users/login.dto';
 import { UpdateUserDTO } from '../../dtos/users/update-user.dto';
 
 export class UserService {
-  constructor(
-    private userRepository: UserRepository
-  ) {}
+  constructor(private userRepository: UserRepository) {}
 
   async register(dto: CreateUserDTO) {
     if (!dto.email || !dto.username || !dto.password) {

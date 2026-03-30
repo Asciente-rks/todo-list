@@ -7,6 +7,7 @@ const commonOptions = {
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT) || 4000, // TiDB default port is 4000
   dialect: "mysql" as const,
+  timezone: "+00:00", // Force UTC to keep queries consistent and efficient
   logging: false, // Disabling logging saves RUs by reducing metadata overhead
   dialectOptions: {
     ssl: {

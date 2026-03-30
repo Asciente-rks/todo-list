@@ -17,8 +17,8 @@ app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
-app.use("/todos", todoRouter);
-app.use("/users", userRouter);
+app.use("/api/todos", todoRouter);
+app.use("/api/users", userRouter);
 
 const startServer = async () => {
   try {

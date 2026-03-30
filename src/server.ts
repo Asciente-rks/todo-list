@@ -34,11 +34,10 @@ const startServer = async () => {
     // Initialize associations before syncing
     setupAssociations();
 
-    // Only sync when specifically requested via environment variable
-    if (process.env.DB_SYNC === "true") {
-      await sequelize.sync();
-      console.log("Database synced successfully.");
-    }
+    // This ensures tables (users, todos) are created if they don't exist in todo_list_db
+    // sync() is smart: it won't drop existing data, it just creates missing tables.
+    await sequelize.sync();
+    console.log("Database synced successfully - all tables verified.");
 
     app.listen(PORT, () => {
       console.log(`Server running at http://localhost:${PORT}`);

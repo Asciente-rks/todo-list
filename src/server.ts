@@ -27,6 +27,19 @@ app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.originalUrl} not found` });
 });
 
+// Global error handler to catch connection timeouts and other DB issues
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    console.error(`[Internal Error] ${req.method} ${req.url}:`, err.message);
+    res.status(500).json({ error: err.message || "Internal Server Error" });
+  },
+);
+
 const startServer = async () => {
   try {
     await testConnection();

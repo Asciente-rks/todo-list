@@ -1,7 +1,9 @@
-import { User, UserCreationAttributes } from '../../models/users/user.sequelize';
+import {
+  User,
+  UserCreationAttributes,
+} from "../../models/users/user.sequelize";
 
 export class UserRepository {
-  
   async create(userData: UserCreationAttributes) {
     return await User.create(userData);
   }

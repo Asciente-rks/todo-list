@@ -14,12 +14,13 @@ const commonOptions = {
       minVersion: "TLSv1.2",
       rejectUnauthorized: true,
     },
+    connectTimeout: 60000, // Wait up to 60s for the TCP connection handshake
   },
   pool: {
     max: 5, // Small pool size is better for Render's free/starter tiers
     min: 0,
-    acquire: 30000,
-    idle: 2000, // Reduced idle timeout as requested
+    acquire: 60000, // Wait up to 60s to get a connection from the pool
+    idle: 30000, // Reduced idle timeout as requested
   },
 };
 
@@ -30,13 +31,23 @@ export const sequelize = new Sequelize(
   commonOptions,
 );
 
-export const testConnection = async () => {
-  try {
-    // Authenticate the single instance
-    await sequelize.authenticate();
-    console.log("Database connection established successfully.");
-  } catch (error) {
-    console.error(" Unable to connect to the database:", error);
-    throw error;
+export const testConnection = async (retries = 5) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      // Authenticate the single instance
+      await sequelize.authenticate();
+      console.log("Database connection established successfully.");
+      return;
+    } catch (error) {
+      console.warn(
+        `Database connection attempt ${i + 1} failed. Retrying in 5s...`,
+      );
+      if (i === retries - 1) {
+        console.error("Maximum database connection retries reached.");
+        throw error;
+      }
+      // Wait for 5 seconds before retrying to allow TiDB Serverless to wake up
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
   }
 };

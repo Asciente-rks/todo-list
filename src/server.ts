@@ -17,8 +17,15 @@ app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
+// Mount routers under a single /api prefix.
 app.use("/api/todos", todoRouter);
 app.use("/api/users", userRouter);
+
+// Catch-all 404 handler for API routes
+app.use((req, res) => {
+  console.log(`404 - Not Found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ error: `Route ${req.originalUrl} not found` });
+});
 
 const startServer = async () => {
   try {

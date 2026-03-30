@@ -1,51 +1,51 @@
-import { Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
+import { Sequelize } from "sequelize";
+import dotenv from "dotenv";
 
-dotenv.config(); 
+dotenv.config();
+
+const commonOptions = {
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT) || 4000, // TiDB default port is 4000
+  dialect: "mysql" as const,
+  logging: false, // Disabling logging saves RUs by reducing metadata overhead
+  dialectOptions: {
+    ssl: {
+      minVersion: "TLSv1.2",
+      rejectUnauthorized: true,
+    },
+  },
+  pool: {
+    max: 5, // Small pool size is better for Render's free/starter tiers
+    min: 0,
+    acquire: 30000,
+    idle: 2000, // Reduced idle timeout as requested
+  },
+};
 
 export const todoSequelize = new Sequelize(
   process.env.DB_NAME!,
   process.env.DB_USER!,
   process.env.DB_PASSWORD!,
-  {
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT) || 3306,
-    dialect: 'mysql',
-    logging: false
-  }
+  commonOptions,
 );
 
 export const userSequelize = new Sequelize(
   process.env.USER_DB_NAME!,
   process.env.DB_USER!,
   process.env.DB_PASSWORD!,
-  {
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT) || 3306,
-    dialect: 'mysql',
-    logging: false
-  }
+  commonOptions,
 );
 
 export const testConnection = async () => {
-  const bootstrapSequelize = new Sequelize('', process.env.DB_USER!, process.env.DB_PASSWORD!, {
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT) || 3306,
-    dialect: 'mysql',
-    logging: false
-  });
-
   try {
-    await bootstrapSequelize.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;`);
-    await bootstrapSequelize.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.USER_DB_NAME}\`;`);
-    await bootstrapSequelize.close();
-
-    await todoSequelize.authenticate();
-    console.log(' Connection to Todo DB established successfully.');
-    await userSequelize.authenticate();
-    console.log(' Connection to User DB established successfully.');
+    // Authenticate both instances to ensure credentials are correct
+    await Promise.all([
+      todoSequelize.authenticate(),
+      userSequelize.authenticate(),
+    ]);
+    console.log("Database connections established successfully.");
   } catch (error) {
-    console.error(' Unable to connect to the database:', error);
+    console.error(" Unable to connect to the database:", error);
     throw error;
   }
 };

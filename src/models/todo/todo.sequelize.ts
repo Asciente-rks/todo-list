@@ -1,5 +1,5 @@
-import { Model, DataTypes } from 'sequelize';
-import { todoSequelize } from '../../utils/db';
+import { Model, DataTypes } from "sequelize";
+import { todoSequelize } from "../../utils/db";
 
 export interface TodoAttributes {
   id: string;
@@ -12,9 +12,15 @@ export interface TodoAttributes {
   updatedAt?: Date;
 }
 
-export interface TodoCreationAttributes extends Omit<TodoAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+export interface TodoCreationAttributes extends Omit<
+  TodoAttributes,
+  "id" | "createdAt" | "updatedAt"
+> {}
 
-export class Todo extends Model<TodoAttributes, TodoCreationAttributes> implements TodoAttributes {
+export class Todo
+  extends Model<TodoAttributes, TodoCreationAttributes>
+  implements TodoAttributes
+{
   declare id: string;
   declare title: string;
   declare description?: string;
@@ -32,31 +38,30 @@ Todo.init(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    title: { 
-      type: DataTypes.STRING, 
-      allowNull: false 
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     description: {
       type: DataTypes.STRING,
       allowNull: true,
     },
     completed: {
-      type: DataTypes.BOOLEAN, 
-      allowNull: false, 
-      defaultValue: false 
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
-    dueDate: {
-      type: DataTypes.DATE, 
-      allowNull: true 
-    },
-    userId: {
-      type: DataTypes.UUID, 
-      allowNull: false 
-    },
+    dueDate: { type: DataTypes.DATE, allowNull: true },
+    userId: { type: DataTypes.UUID, allowNull: false },
   },
   {
     sequelize: todoSequelize,
-    tableName: 'todos',
+    tableName: "todos",
     timestamps: true,
-  }
+    indexes: [
+      {
+        fields: ["userId"],
+      },
+    ],
+  },
 );

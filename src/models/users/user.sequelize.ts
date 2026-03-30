@@ -1,5 +1,5 @@
-import { DataTypes, Model } from 'sequelize';
-import { userSequelize } from '../../utils/db';
+import { DataTypes, Model } from "sequelize";
+import { sequelize } from "../../utils/db";
 
 export interface UserAttributes {
   id: string;
@@ -10,9 +10,15 @@ export interface UserAttributes {
   updatedAt?: Date;
 }
 
-export interface UserCreationAttributes extends Omit<UserAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+export interface UserCreationAttributes extends Omit<
+  UserAttributes,
+  "id" | "createdAt" | "updatedAt"
+> {}
 
-export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+export class User
+  extends Model<UserAttributes, UserCreationAttributes>
+  implements UserAttributes
+{
   declare id: string;
   declare username: string;
   declare email: string;
@@ -27,26 +33,26 @@ User.init(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
-      allowNull: false
+      allowNull: false,
     },
     username: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false
-    }
+      allowNull: false,
+    },
   },
   {
-    sequelize: userSequelize,
-    tableName: 'users',
-    timestamps: true
-  }
+    sequelize,
+    tableName: "users",
+    timestamps: true,
+  },
 );

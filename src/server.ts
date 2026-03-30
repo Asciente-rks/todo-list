@@ -1,8 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
-import { todoSequelize, userSequelize, testConnection } from "./utils/db";
+import { sequelize, testConnection } from "./utils/db";
 import { userRouter } from "./routes/users/user.routes";
 import { todoRouter } from "./routes/todo/todo.routes";
+import { setupAssociations } from "./associations/associations";
 
 dotenv.config();
 
@@ -23,10 +24,13 @@ const startServer = async () => {
   try {
     await testConnection();
 
+    // Initialize associations before syncing
+    setupAssociations();
+
     // Only sync when specifically requested via environment variable
     if (process.env.DB_SYNC === "true") {
-      await Promise.all([todoSequelize.sync(), userSequelize.sync()]);
-      console.log("Databases synced successfully.");
+      await sequelize.sync();
+      console.log("Database synced successfully.");
     }
 
     app.listen(PORT, () => {

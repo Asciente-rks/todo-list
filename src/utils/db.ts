@@ -23,15 +23,8 @@ const commonOptions = {
   },
 };
 
-export const todoSequelize = new Sequelize(
+export const sequelize = new Sequelize(
   process.env.DB_NAME!,
-  process.env.DB_USER!,
-  process.env.DB_PASSWORD!,
-  commonOptions,
-);
-
-export const userSequelize = new Sequelize(
-  process.env.USER_DB_NAME!,
   process.env.DB_USER!,
   process.env.DB_PASSWORD!,
   commonOptions,
@@ -39,12 +32,9 @@ export const userSequelize = new Sequelize(
 
 export const testConnection = async () => {
   try {
-    // Authenticate both instances to ensure credentials are correct
-    await Promise.all([
-      todoSequelize.authenticate(),
-      userSequelize.authenticate(),
-    ]);
-    console.log("Database connections established successfully.");
+    // Authenticate the single instance
+    await sequelize.authenticate();
+    console.log("Database connection established successfully.");
   } catch (error) {
     console.error(" Unable to connect to the database:", error);
     throw error;

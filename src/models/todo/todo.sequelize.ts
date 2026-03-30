@@ -1,5 +1,5 @@
 import { Model, DataTypes } from "sequelize";
-import { todoSequelize } from "../../utils/db";
+import { sequelize } from "../../utils/db";
 
 export interface TodoAttributes {
   id: string;
@@ -55,7 +55,7 @@ Todo.init(
     userId: { type: DataTypes.UUID, allowNull: false },
   },
   {
-    sequelize: todoSequelize,
+    sequelize,
     tableName: "todos",
     timestamps: true,
     indexes: [

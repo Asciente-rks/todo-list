@@ -52,8 +52,13 @@ const startServer = async () => {
     await sequelize.sync();
     console.log("Database synced successfully - all tables verified.");
 
-    app.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}`);
+    // Use the environment port, or default to 10000 for local development
+    // Parse the port as an integer
+    const PORT: number = parseInt(process.env.PORT || "10000", 10);
+
+    // Now TypeScript will be happy
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server is listening on port ${PORT}`);
     });
   } catch (error) {
     console.error("Failed to start server:", error);

@@ -8,12 +8,12 @@ import cors from "cors";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
 const app = express();
 
+// 1. CORS Configuration - Crucial for Mobile APKs
 app.use(
   cors({
-    origin: "*", // Allows any frontend to connect. Good for dev!
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
@@ -21,22 +21,39 @@ app.use(
 
 app.use(express.json());
 
-// Health check for Render deployment
+// 2. LOGGING MIDDLEWARE - This lets you see the APK's requests in Render Logs
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
+// 3. BASE API ROUTE - This stops the "404 - GET /api" error in your logs
+// When the APK checks if the server is awake, it will now get a 200 OK.
+app.get("/api", (req, res) => {
+  res.status(200).json({
+    status: "online",
+    message: "To-Do List API is fully operational",
+  });
+});
+
+// 4. HEALTH CHECK for Render
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
-// Mount routers under a single /api prefix.
-app.use("/api/todos", todoRouter);
+// 5. MOUNT ROUTERS
+// NOTE: If your login is inside userRouter as router.post("/login"),
+// the full URL will be: https://your-link.onrender.com/api/users/login
 app.use("/api/users", userRouter);
+app.use("/api/todos", todoRouter);
 
-// Catch-all 404 handler for API routes
+// 6. CATCH-ALL 404
 app.use((req, res) => {
   console.log(`404 - Not Found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ error: `Route ${req.originalUrl} not found` });
 });
 
-// Global error handler to catch connection timeouts and other DB issues
+// 7. GLOBAL ERROR HANDLER
 app.use(
   (
     err: any,
@@ -52,20 +69,13 @@ app.use(
 const startServer = async () => {
   try {
     await testConnection();
-
-    // Initialize associations before syncing
     setupAssociations();
-
-    // This ensures tables (users, todos) are created if they don't exist in todo_list_db
-    // sync() is smart: it won't drop existing data, it just creates missing tables.
     await sequelize.sync();
+
     console.log("Database synced successfully - all tables verified.");
 
-    // Use the environment port, or default to 10000 for local development
-    // Parse the port as an integer
     const PORT: number = parseInt(process.env.PORT || "10000", 10);
 
-    // Now TypeScript will be happy
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server is listening on port ${PORT}`);
     });

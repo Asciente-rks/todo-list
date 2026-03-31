@@ -4,11 +4,20 @@ import { sequelize, testConnection } from "./utils/db";
 import { userRouter } from "./routes/users/user.routes";
 import { todoRouter } from "./routes/todo/todo.routes";
 import { setupAssociations } from "./associations/associations";
+import cors from "cors";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const app = express();
+
+app.use(
+  cors({
+    origin: "*", // Allows any frontend to connect. Good for dev!
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 

@@ -1,5 +1,6 @@
 export interface UpdateUserDTO {
-    username?: string;
-    email?: string;
-    password?: string;
-  }  
+  username?: string;
+  email?: string;
+  password?: string;
+  currentPassword?: string;
+}

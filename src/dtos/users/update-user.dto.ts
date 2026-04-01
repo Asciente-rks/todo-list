@@ -2,5 +2,5 @@ export interface UpdateUserDTO {
   username?: string;
   email?: string;
   password?: string;
-  currentPassword?: string;
+  currentPassword?: string; // Verification field
 }

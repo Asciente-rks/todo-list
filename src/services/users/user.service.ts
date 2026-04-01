@@ -77,19 +77,18 @@ export class UserService {
   // -----------------------------
   // UPDATE PROFILE
   // -----------------------------
-  async updateUser(
-    id: string,
-    dto: UpdateUserDTO & { currentPassword?: string },
-  ) {
+  async updateUser(id: string, dto: UpdateUserDTO) {
     const user = await this.userRepository.findById(id);
     if (!user) throw new Error("User not found");
 
     const { password, email, username, currentPassword } = dto;
 
     // require currentPassword only if changing sensitive info
-    const requiresCheck = password || email || username;
-    if (requiresCheck && !currentPassword) {
-      throw new Error("Current password required to update profile");
+    const isChangingSensitiveInfo = !!(password || email || username);
+    if (isChangingSensitiveInfo && !currentPassword) {
+      throw new Error(
+        "Current password required to update profile (field missing in request)",
+      );
     }
 
     // check current password if provided
@@ -98,7 +97,7 @@ export class UserService {
       if (!match) throw new Error("Current password is incorrect");
     }
 
-    const updatedData: any = { ...dto };
+    const updatedData = { ...dto };
 
     // hash new password if provided
     if (password) {

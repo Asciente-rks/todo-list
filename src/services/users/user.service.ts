@@ -8,83 +8,58 @@ import { UpdateUserDTO } from "../../dtos/users/update-user.dto";
 export class UserService {
   constructor(private userRepository: UserRepository) {}
 
+  // -----------------------------
+  // REGISTER
+  // -----------------------------
   async register(dto: CreateUserDTO) {
-    if (!dto.email || !dto.username || !dto.password) {
+    const { username, email, password } = dto;
+    if (!username || !email || !password) {
       throw new Error("Username, email and password are required");
     }
 
-    const existingUser = await this.userRepository.findByEmail(dto.email);
-    if (existingUser) {
-      throw new Error("User with this email already exists");
-    }
+    const existingUser = await this.userRepository.findByEmail(email);
+    if (existingUser) throw new Error("User with this email already exists");
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await this.userRepository.create({
-      username: dto.username,
-      email: dto.email,
+      username,
+      email,
       password: hashedPassword,
     });
+
     return newUser;
   }
 
+  // -----------------------------
+  // LOGIN
+  // -----------------------------
   async login(dto: LoginDTO) {
-    const user = await this.userRepository.findByUsername(dto.username);
-    if (!user) {
-      throw new Error("Invalid credentials");
-    }
+    const { username, password } = dto;
 
-    const isMatch = await bcrypt.compare(dto.password, user.password);
-    if (!isMatch) {
-      throw new Error("Invalid credentials");
-    }
+    // lookup by username only (frontend sends username)
+    const user = await this.userRepository.findByUsername(username);
+    if (!user) throw new Error("Invalid credentials");
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Invalid credentials");
 
     const token = jwt.sign(
       { id: user.id, username: user.username },
       process.env.JWT_SECRET!,
       { expiresIn: "1h" },
     );
+
     return { user, token };
   }
 
-  async getAllUsers() {
-    return await this.userRepository.findAll();
-  }
-
-  async updateUser(
-    id: string,
-    dto: UpdateUserDTO & { currentPassword?: string },
-  ) {
+  // -----------------------------
+  // GET PROFILE
+  // -----------------------------
+  async findById(id: string) {
     const user = await this.userRepository.findById(id);
     if (!user) throw new Error("User not found");
-
-    // Only check currentPassword if updating sensitive data
-    if ((dto.password || dto.email || dto.username) && !dto.currentPassword) {
-      throw new Error("Current password required to update profile");
-    }
-
-    if (dto.currentPassword) {
-      const isMatch = await bcrypt.compare(dto.currentPassword, user.password);
-      if (!isMatch) throw new Error("Current password is incorrect");
-    }
-
-    // Only hash new password if provided
-    if (dto.password) {
-      dto.password = await bcrypt.hash(dto.password, 10);
-    }
-
-    delete dto.currentPassword; // remove before saving
-
-    return await this.userRepository.update(id, dto as any);
-  }
-
-  async deleteUser(id: string) {
-    const wasDeleted = await this.userRepository.delete(id);
-
-    if (wasDeleted) {
-      console.log(`EVENT_EMITTED: UserDeleted, userId: ${id}`);
-    }
-    return wasDeleted;
+    return user;
   }
 
   async findByEmail(email: string) {
@@ -95,7 +70,54 @@ export class UserService {
     return await this.userRepository.findByUsername(username);
   }
 
-  async findById(id: string) {
-    return await this.userRepository.findById(id);
+  async getAllUsers() {
+    return await this.userRepository.findAll();
+  }
+
+  // -----------------------------
+  // UPDATE PROFILE
+  // -----------------------------
+  async updateUser(
+    id: string,
+    dto: UpdateUserDTO & { currentPassword?: string },
+  ) {
+    const user = await this.userRepository.findById(id);
+    if (!user) throw new Error("User not found");
+
+    const { password, email, username, currentPassword } = dto;
+
+    // require currentPassword only if changing sensitive info
+    const requiresCheck = password || email || username;
+    if (requiresCheck && !currentPassword) {
+      throw new Error("Current password required to update profile");
+    }
+
+    // check current password if provided
+    if (currentPassword) {
+      const match = await bcrypt.compare(currentPassword, user.password);
+      if (!match) throw new Error("Current password is incorrect");
+    }
+
+    const updatedData: any = { ...dto };
+
+    // hash new password if provided
+    if (password) {
+      updatedData.password = await bcrypt.hash(password, 10);
+    }
+
+    delete updatedData.currentPassword; // never store this
+
+    return await this.userRepository.update(id, updatedData);
+  }
+
+  // -----------------------------
+  // DELETE USER
+  // -----------------------------
+  async deleteUser(id: string) {
+    const deleted = await this.userRepository.delete(id);
+    if (deleted) {
+      console.log(`EVENT_EMITTED: UserDeleted, userId: ${id}`);
+    }
+    return deleted;
   }
 }

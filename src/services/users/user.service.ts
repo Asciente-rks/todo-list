@@ -53,31 +53,28 @@ export class UserService {
 
   async updateUser(
     id: string,
-    dto: UpdateUserDTO & { currentPassword?: string }, // include currentPassword
+    dto: UpdateUserDTO & { currentPassword?: string },
   ) {
     const user = await this.userRepository.findById(id);
     if (!user) throw new Error("User not found");
 
-    // If trying to change password or email/username, check currentPassword
-    if (dto.currentPassword) {
-      const isMatch = await bcrypt.compare(dto.currentPassword, user.password);
-      if (!isMatch) {
-        throw new Error("Current password is incorrect");
-      }
-    } else if (dto.password || dto.email || dto.username) {
-      // If trying to change something sensitive but no currentPassword provided
+    // Only check currentPassword if updating sensitive data
+    if ((dto.password || dto.email || dto.username) && !dto.currentPassword) {
       throw new Error("Current password required to update profile");
     }
 
-    // Hash new password if provided
+    if (dto.currentPassword) {
+      const isMatch = await bcrypt.compare(dto.currentPassword, user.password);
+      if (!isMatch) throw new Error("Current password is incorrect");
+    }
+
+    // Only hash new password if provided
     if (dto.password) {
       dto.password = await bcrypt.hash(dto.password, 10);
     }
 
-    // Remove currentPassword before sending to repository
-    delete dto.currentPassword;
+    delete dto.currentPassword; // remove before saving
 
-    // Update user in repository
     return await this.userRepository.update(id, dto as any);
   }
 

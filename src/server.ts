@@ -43,7 +43,12 @@ app.get("/api", (req, res) => {
 
 // 4. HEALTH CHECK for Render
 app.get("/health", (req, res) => {
-  res.status(200).send("OK");
+  res.set("Cache-Control", "no-store");
+  res.status(200).json({
+    status: "UP",
+    service: "to-do-list-api",
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // 5. MOUNT ROUTERS
